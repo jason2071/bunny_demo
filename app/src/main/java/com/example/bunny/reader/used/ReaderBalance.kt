@@ -1,7 +1,7 @@
-package com.example.bunny.reader
+package com.example.bunny.reader.used
 
-import com.example.bunny.base.BaseReader
-import com.example.bunny.base.Reader
+import com.example.bunny.reader.base.BaseReader
+import com.example.bunny.reader.base.Reader
 
 class ReaderBalance: BaseReader() {
 

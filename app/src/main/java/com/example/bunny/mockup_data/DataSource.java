@@ -1,4 +1,4 @@
-package com.example.bunny.data;
+package com.example.bunny.mockup_data;
 
 public class DataSource {
 

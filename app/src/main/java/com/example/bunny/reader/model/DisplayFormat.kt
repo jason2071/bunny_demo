@@ -1,4 +1,4 @@
-package com.example.bunny.model
+package com.example.bunny.reader.model
 
 data class DisplayFormat(
         var name: String
