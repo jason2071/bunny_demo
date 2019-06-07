@@ -9,7 +9,7 @@ data class RxFormat(
         , var RX_SN_CURRENT: ArrayList<Byte> // change
         , var RX_SN_TOTAL: ArrayList<Byte>
         , var RX_CMDID: ArrayList<Byte> // static
-        , var RX_STATUS: ArrayList<Byte>
+        , var RX_RESULT: ArrayList<Byte>
         , var RX_PayloadType: ArrayList<Byte>
         , var RX_PayloadLen: ArrayList<Byte> // change
         , var RX_Payload: ArrayList<Byte> // change

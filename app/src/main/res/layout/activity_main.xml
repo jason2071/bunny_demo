@@ -9,12 +9,31 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:text="0"
         android:id="@+id/tvDisplayTraceNum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:gravity="center"
         android:padding="10dp" />
+
+    <Button
+        android:id="@+id/btnInitialize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Initialize" />
+
+    <Button
+        android:id="@+id/btnInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Device info" />
 
     <Button
         android:id="@+id/btnCancel"
@@ -34,13 +53,5 @@
         android:padding="10dp"
         android:text="balance" />
 
-    <Button
-        android:id="@+id/btnInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:gravity="center"
-        android:padding="10dp"
-        android:text="info" />
 
 </LinearLayout>

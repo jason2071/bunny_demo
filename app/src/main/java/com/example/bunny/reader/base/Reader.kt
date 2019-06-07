@@ -6,7 +6,7 @@ import com.example.bunny.reader.model.TxFormat
 object Reader {
 
     // save sequence number
-    var sequenceNumber = 0
+    var termStan = 0
 
     // save txFormat
     lateinit var txFormat: TxFormat
