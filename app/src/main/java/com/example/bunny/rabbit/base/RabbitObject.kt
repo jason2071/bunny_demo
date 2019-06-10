@@ -8,7 +8,7 @@ object RabbitObject {
 
     // for send data
     lateinit var writeModel: WriteModel
-    var writeDataList = arrayListOf<Byte>()
+    var writeDataList = mutableListOf<Byte>()
 
     // for receive data
     lateinit var readModel: ReadModel

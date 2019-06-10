@@ -9,10 +9,10 @@ import com.example.bunny.util.LogUtil
 
 class ReaderCancel : BaseReader() {
 
-    fun cancel(): Boolean {
+    private val payload: ArrayList<Byte> = arrayListOf(0x01, 0x00, 0x04, 0x00)
+    private var retStatus = false
 
-        val payload: ArrayList<Byte> = arrayListOf(0x01, 0x00, 0x04, 0x00)
-        var retStatus = false
+    fun cancel(): Boolean {
 
         setWritePacket()
 
@@ -23,9 +23,9 @@ class ReaderCancel : BaseReader() {
 
         writeModel.txPayloadType = byteArrayOf(payload[0], payload[1])
         writeModel.txPayloadLen = byteArrayOf(payload[2], payload[3])
-        writeModel.txPayload = byteArrayOf(0x00, 0x00, 0x00, 0x00)
+        writeModel.txPayload = byteArrayOf(0x00, 0x01, 0x00, 0x00)
 
-
+        setTxPacketList()
 
         if (openSerialPort()) {
             retStatus = sendGetACK(ACK4)

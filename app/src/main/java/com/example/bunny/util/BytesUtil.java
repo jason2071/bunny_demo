@@ -90,9 +90,9 @@ public class BytesUtil {
     /**
      * Change bytes to sring data.
      */
-    public static String fromBytes(byte[] data, String charsetName) throws UnsupportedEncodingException {
+    /*public static String fromBytes(byte[] data, String charsetName) throws UnsupportedEncodingException {
         return new String(data, charsetName);
-    }
+    }*/
 
     /**
      * Change byte array to GBK string data.
@@ -228,5 +228,29 @@ public class BytesUtil {
         }
 
         return bcd;
+    }
+
+    public static byte[] toBytes(String data) {
+        return toBytes(data, "ISO-8859-1");
+    }
+
+    public static byte[] toBytes(String data, String charsetName) {
+        try {
+            return data.getBytes(charsetName);
+        } catch (UnsupportedEncodingException var3) {
+            return null;
+        }
+    }
+
+    public static String fromBytes(byte[] data) {
+        return fromBytes(data, "ISO-8859-1");
+    }
+
+    public static String fromBytes(byte[] data, String charsetName) {
+        try {
+            return new String(data, charsetName);
+        } catch (UnsupportedEncodingException var3) {
+            return null;
+        }
     }
 }

@@ -73,7 +73,7 @@ open class BaseReader {
 
     fun setWritePacket() {
         writeModel.txStart = byteArrayOf(0x10, 0x02)
-        writeModel.txVersion = byteArrayOf(0x10, 0)
+        writeModel.txVersion = byteArrayOf(0x01, 0)
         writeModel.txSnPacket = byteArrayOf(0x01, 0)
         writeModel.txSnCurrent = byteArrayOf(0x01, 0)
         writeModel.txSnTotal = byteArrayOf(0x01, 0)
@@ -90,20 +90,21 @@ open class BaseReader {
     }
 
     fun setTxPacketList() {
-        writeDataList.addAll(writeModel.txStart)
-        writeDataList.addAll(writeModel.txVersion)
-        writeDataList.addAll(writeModel.txSessionId)
-        writeDataList.addAll(writeModel.txMessageType)
-        writeDataList.addAll(writeModel.txSnPacket)
-        writeDataList.addAll(writeModel.txSnCurrent)
-        writeDataList.addAll(writeModel.txSnTotal)
-        writeDataList.addAll(writeModel.txCommandId)
-        writeDataList.addAll(writeModel.txStatus)
-        writeDataList.addAll(writeModel.txPayloadType)
-        writeDataList.addAll(writeModel.txPayloadLen)
-        writeDataList.addAll(writeModel.txPayload)
-        writeDataList.addAll(writeModel.txCheckSum)
-        writeDataList.addAll(writeModel.txStop)
+        writeDataList.clear()
+        writeDataList.addAll(writeModel.txStart.toMutableList())
+        writeDataList.addAll(writeModel.txVersion.toMutableList())
+        writeDataList.addAll(writeModel.txSessionId.toMutableList())
+        writeDataList.add(writeModel.txMessageType)
+        writeDataList.addAll(writeModel.txSnPacket.toMutableList())
+        writeDataList.addAll(writeModel.txSnCurrent.toMutableList())
+        writeDataList.addAll(writeModel.txSnTotal.toMutableList())
+        writeDataList.addAll(writeModel.txCommandId.toMutableList())
+        writeDataList.addAll(writeModel.txStatus.toMutableList())
+        writeDataList.addAll(writeModel.txPayloadType.toMutableList())
+        writeDataList.addAll(writeModel.txPayloadLen.toMutableList())
+        writeDataList.addAll(writeModel.txPayload.toMutableList())
+        writeDataList.addAll(writeModel.txCheckSum.toMutableList())
+        writeDataList.addAll(writeModel.txStop.toMutableList())
     }
 
     fun sendGetACK(expectACK: Byte): Boolean {
@@ -113,9 +114,6 @@ open class BaseReader {
         var retStatus = false
 
         do {
-
-            LogUtil.log("count: $count")
-
             retStatus = packTxMsg2Send()
 
             if (!retStatus) {
@@ -162,6 +160,10 @@ open class BaseReader {
         } while (count <= 5 && cnxRepeat < 3)
 
         return retStatus
+    }
+
+    fun nullComp(buffer: MutableList<Byte>): Boolean {
+        return !buffer.contains(0x00)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -286,8 +288,7 @@ open class BaseReader {
             if (flowResult == 0x00.toByte() || flowResult == 0x05.toByte() && needUnpack) {
 
                 if (readDataList.size >= 29) {
-
-                    Arrays.fill(readModel.rxPayload, 0)
+                    readModel.rxPayload.fill(0x00, 0, readModel.rxPayload.size)
                     readModel.rxPayload = readDataList.drop(25).dropLast(4).toByteArray()
                 }
 
