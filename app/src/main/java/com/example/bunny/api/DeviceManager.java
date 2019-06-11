@@ -195,7 +195,7 @@ public class DeviceManager {
     }
 
     /**
-     * Update system time, format: yyyyMMddHHmmss.
+     * Update system readerTime7, format: yyyyMMddHHmmss.
      */
     public void updateSystemTime(String time) throws RemoteException {
         if (!deviceManager.updateSystemDatetime(time)) {

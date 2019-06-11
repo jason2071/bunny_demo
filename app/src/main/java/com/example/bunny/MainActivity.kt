@@ -2,9 +2,12 @@ package com.example.bunny
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.example.bunny.rabbit.used.ReaderAuth
-import com.example.bunny.util.LogUtil
-import com.google.gson.Gson
+import com.example.bunny.mockup_data.Failure
+import com.example.bunny.mockup_data.Success
+import com.example.bunny.mockup_data.UserResult
+import com.example.bunny.rabbit.used.ReaderCancel
+import com.example.bunny.rabbit.used.ReaderGetTime
+import com.example.bunny.rabbit.used.ReaderInitialize
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -15,38 +18,33 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //initInstance()
-
-        var payload = byteArrayOf(
-                0x00, 0x01, 0x00, 0x00
-                , 0x30, 0x01, 0xFE.toByte(), 0x54, 0x1C, 0x4B, 0x6E, 0x58
-                , 0x8A.toByte(), 0xF9.toByte(), 0xBE.toByte(), 0x37, 0x01, 0x00, 0x00, 0x02)
-
-        val decrypt = byteArrayOf(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08)
-
-        val writeData = payload.dropLast(8).toMutableList()
-        writeData.addAll(decrypt.toMutableList())
-
-        LogUtil.log("payload: ${Gson().toJson(payload)}")
-        LogUtil.log("writeData: ${Gson().toJson(writeData)}")
-
-        payload = writeData.toByteArray()
-        LogUtil.log("result: ${Gson().toJson(payload)}")
+        initInstance()
 
 
     }
 
     private fun initInstance() {
-        val readerAuth = ReaderAuth()
+        val cancel = ReaderCancel()
+        val initialize = ReaderInitialize()
+        val getTime = ReaderGetTime()
 
         btnInitialize.setOnClickListener {
-            readerAuth.auth(keyValue)
+            valid(Success(listOf("one","two")))
         }
 
-        btnInfo.setOnClickListener {}
+        btnInfo.setOnClickListener {
+            valid(Failure("Welcome!"))
+        }
 
         btnCancel.setOnClickListener {}
 
         btnBalance.setOnClickListener {}
+    }
+
+    private fun valid(result: UserResult): String {
+        return when(result) {
+            is Success -> result.users.size.toString()
+            is Failure -> result.message
+        }
     }
 }

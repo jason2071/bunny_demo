@@ -35,7 +35,7 @@ open class BaseReader {
     private val payloadSize = 1050
     private var msgBufferSize = 1792
 
-    // time
+    // reader time
     private var timeoutTx       = 1500 / 100
     private var timeoutSendACK  = 1500 / 100
     private var timeoutRX       = 18000 / 100
