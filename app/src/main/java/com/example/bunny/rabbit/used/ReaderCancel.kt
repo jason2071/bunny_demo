@@ -6,7 +6,7 @@ import com.example.bunny.rabbit.base.RabbitObject.readDataList
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.base.RabbitObject.writeDataList
 import com.example.bunny.rabbit.base.RabbitObject.writeModel
-import com.example.bunny.rabbit.model.BaseResponse
+import com.example.bunny.rabbit.model.ReaderResponse
 
 class ReaderCancel : BaseReader() {
 
@@ -20,9 +20,9 @@ class ReaderCancel : BaseReader() {
         writeModel.txSnPacket = setTraceNum(traceNumber)
         writeModel.txCommandId[0] = 0xAA.toByte()
         writeModel.txCommandId[1] = 0x00
-        writeModel.txPayloadType = byteArrayOf(payload[0], payload[1])
-        writeModel.txPayloadLen = byteArrayOf(payload[2], payload[3])
-        writeModel.txPayload = byteArrayOf(0x00, 0x01, 0x00, 0x00)
+        writeModel.txPayloadType = mutableListOf(payload[0], payload[1])
+        writeModel.txPayloadLen = mutableListOf(payload[2], payload[3])
+        writeModel.txPayload = mutableListOf(0x00, 0x01, 0x00, 0x00)
 
         setTxPacketList()
 
@@ -37,13 +37,10 @@ class ReaderCancel : BaseReader() {
     ////////////////////////////////////// after using cancel //////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    val response: BaseResponse
-        get() {
-            val items = BaseResponse()
-            items.status = retStatus
-            items.writeDataList = writeDataList
-            items.readDataList = readDataList
-            return items
-        }
+    /*val response: CancelResponse
+        get() = CancelResponse(retStatus, writeDataList, readDataList)*/
+
+    val response: ReaderResponse
+        get() = ReaderResponse(retStatus , writeDataList , readDataList)
 
 }

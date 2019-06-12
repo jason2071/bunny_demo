@@ -36,29 +36,29 @@ open class BaseReader {
     private var msgBufferSize = 1792
 
     // reader time
-    private var timeoutTx       = 1500 / 100
-    private var timeoutSendACK  = 1500 / 100
-    private var timeoutRX       = 18000 / 100
-    private var timeoutRecvACK  = 1500 / 100
+    private var timeoutTx = 1500 / 100
+    private var timeoutSendACK = 1500 / 100
+    private var timeoutRX = 18000 / 100
+    private var timeoutRecvACK = 1500 / 100
 
     // flow result
     private var flowResult: Byte = 0
 
     init {
-        val start = ByteArray(2)
-        val version = ByteArray(2)
-        val sessionId = ByteArray(4)
+        val start: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val version: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val sessionId: MutableList<Byte> = mutableListOf(0x00, 0x00, 0x00, 0x00)
         val messageType: Byte = 0x00
-        val snPacket = ByteArray(2)
-        val snCurrent = ByteArray(2)
-        val snTotal = ByteArray(2)
-        val commandId = ByteArray(2)
-        val statusOrResult = ByteArray(4)
-        val payloadType = ByteArray(2)
-        val payloadLen = ByteArray(2)
-        val payload = ByteArray(payloadSize + 20)
-        val checksum = ByteArray(2)
-        val stop = ByteArray(2)
+        val snPacket: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val snCurrent: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val snTotal: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val commandId: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val statusOrResult: MutableList<Byte> = mutableListOf(0x00, 0x00, 0x00, 0x00)
+        val payloadType: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val payloadLen: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val payload: MutableList<Byte> = mutableListOf()
+        val checksum: MutableList<Byte> = mutableListOf(0x00, 0x00)
+        val stop: MutableList<Byte> = mutableListOf(0x00, 0x00)
 
         writeModel = WriteModel(start, version, sessionId, messageType, snPacket, snCurrent, snTotal
                 , commandId, statusOrResult, payloadType, payloadLen, payload, checksum, stop)
@@ -72,39 +72,39 @@ open class BaseReader {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     fun setWritePacket() {
-        writeModel.txStart = byteArrayOf(0x10, 0x02)
-        writeModel.txVersion = byteArrayOf(0x01, 0)
-        writeModel.txSnPacket = byteArrayOf(0x01, 0)
-        writeModel.txSnCurrent = byteArrayOf(0x01, 0)
-        writeModel.txSnTotal = byteArrayOf(0x01, 0)
-        writeModel.txStop = byteArrayOf(0x10, 0x03)
+        writeModel.txStart = mutableListOf(0x10, 0x02)
+        writeModel.txVersion = mutableListOf(0x01, 0)
+        writeModel.txSnPacket = mutableListOf(0x01, 0)
+        writeModel.txSnCurrent = mutableListOf(0x01, 0)
+        writeModel.txSnTotal = mutableListOf(0x01, 0)
+        writeModel.txStop = mutableListOf(0x10, 0x03)
     }
 
-    fun setTraceNum(termStan: Int): ByteArray {
+    fun setTraceNum(termStan: Int): MutableList<Byte> {
         var number = termStan + 1
         if (number == 0xFFFF) {
             number = 1
         }
         traceNumber = number
-        return byteArrayOf((number and 0xff).toByte(), (number and 0xff00 shr 8).toByte())
+        return mutableListOf((number and 0xff).toByte(), (number and 0xff00 shr 8).toByte())
     }
 
     fun setTxPacketList() {
         writeDataList.clear()
-        writeDataList.addAll(writeModel.txStart.toMutableList())
-        writeDataList.addAll(writeModel.txVersion.toMutableList())
-        writeDataList.addAll(writeModel.txSessionId.toMutableList())
+        writeDataList.addAll(writeModel.txStart)
+        writeDataList.addAll(writeModel.txVersion)
+        writeDataList.addAll(writeModel.txSessionId)
         writeDataList.add(writeModel.txMessageType)
-        writeDataList.addAll(writeModel.txSnPacket.toMutableList())
-        writeDataList.addAll(writeModel.txSnCurrent.toMutableList())
-        writeDataList.addAll(writeModel.txSnTotal.toMutableList())
-        writeDataList.addAll(writeModel.txCommandId.toMutableList())
-        writeDataList.addAll(writeModel.txStatus.toMutableList())
-        writeDataList.addAll(writeModel.txPayloadType.toMutableList())
-        writeDataList.addAll(writeModel.txPayloadLen.toMutableList())
-        writeDataList.addAll(writeModel.txPayload.toMutableList())
-        writeDataList.addAll(writeModel.txCheckSum.toMutableList())
-        writeDataList.addAll(writeModel.txStop.toMutableList())
+        writeDataList.addAll(writeModel.txSnPacket)
+        writeDataList.addAll(writeModel.txSnCurrent)
+        writeDataList.addAll(writeModel.txSnTotal)
+        writeDataList.addAll(writeModel.txCommandId)
+        writeDataList.addAll(writeModel.txStatus)
+        writeDataList.addAll(writeModel.txPayloadType)
+        writeDataList.addAll(writeModel.txPayloadLen)
+        writeDataList.addAll(writeModel.txPayload)
+        writeDataList.addAll(writeModel.txCheckSum)
+        writeDataList.addAll(writeModel.txStop)
     }
 
     fun sendGetACK(expectACK: Byte): Boolean {
@@ -199,12 +199,12 @@ open class BaseReader {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////// REVERSED ////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    fun norm2LittleEndian(data: ByteArray): ByteArray {
+    fun norm2LittleEndian(data: MutableList<Byte>): MutableList<Byte> {
         data.reverse()
         return data
     }
 
-    fun littleEndian2Norm(data: ByteArray): ByteArray {
+    fun littleEndian2Norm(data: MutableList<Byte>): MutableList<Byte> {
         data.reverse()
         return data
     }
@@ -288,8 +288,8 @@ open class BaseReader {
             if (flowResult == 0x00.toByte() || flowResult == 0x05.toByte() && needUnpack) {
 
                 if (readDataList.size >= 29) {
-                    readModel.rxPayload.fill(0x00, 0, readModel.rxPayload.size)
-                    readModel.rxPayload = readDataList.drop(25).dropLast(4).toByteArray()
+                    readModel.rxPayload.clear()
+                    readModel.rxPayload = readDataList.drop(25).dropLast(4).toMutableList()
                 }
 
                 // check sum
@@ -322,37 +322,37 @@ open class BaseReader {
         val size = readDataList.size
         if (size >= 29) {
             readModel = ReadModel(
-                    byteArrayOf(readDataList[0], readDataList[1])
-                    , byteArrayOf(readDataList[2], readDataList[3])
-                    , byteArrayOf(readDataList[4], readDataList[5], readDataList[6], readDataList[7])
+                    mutableListOf(readDataList[0], readDataList[1])
+                    , mutableListOf(readDataList[2], readDataList[3])
+                    , mutableListOf(readDataList[4], readDataList[5], readDataList[6], readDataList[7])
                     , readDataList[8]
-                    , byteArrayOf(readDataList[9], readDataList[10])
-                    , byteArrayOf(readDataList[11], readDataList[12])
-                    , byteArrayOf(readDataList[13], readDataList[14])
-                    , byteArrayOf(readDataList[15], readDataList[16])
-                    , byteArrayOf(readDataList[17], readDataList[18], readDataList[19], readDataList[20])
-                    , byteArrayOf(readDataList[21], readDataList[22])
-                    , byteArrayOf(readDataList[23], readDataList[24])
-                    , byteArrayOf()
-                    , byteArrayOf(readDataList[size - 4], readDataList[size - 3])
-                    , byteArrayOf(readDataList[size - 2], readDataList[size - 1])
+                    , mutableListOf(readDataList[9], readDataList[10])
+                    , mutableListOf(readDataList[11], readDataList[12])
+                    , mutableListOf(readDataList[13], readDataList[14])
+                    , mutableListOf(readDataList[15], readDataList[16])
+                    , mutableListOf(readDataList[17], readDataList[18], readDataList[19], readDataList[20])
+                    , mutableListOf(readDataList[21], readDataList[22])
+                    , mutableListOf(readDataList[23], readDataList[24])
+                    , mutableListOf()
+                    , mutableListOf(readDataList[size - 4], readDataList[size - 3])
+                    , mutableListOf(readDataList[size - 2], readDataList[size - 1])
             )
         } else if (size >= 15) {
             readModel = ReadModel(
-                    byteArrayOf(readDataList[0], readDataList[1])
-                    , byteArrayOf(readDataList[2], readDataList[3])
-                    , byteArrayOf(readDataList[4], readDataList[5], readDataList[6], readDataList[7])
+                    mutableListOf(readDataList[0], readDataList[1])
+                    , mutableListOf(readDataList[2], readDataList[3])
+                    , mutableListOf(readDataList[4], readDataList[5], readDataList[6], readDataList[7])
                     , readDataList[8]
-                    , byteArrayOf()
-                    , byteArrayOf()
-                    , byteArrayOf()
-                    , byteArrayOf()
-                    , byteArrayOf()
-                    , byteArrayOf()
-                    , byteArrayOf()
-                    , byteArrayOf()
-                    , byteArrayOf(readDataList[size - 4], readDataList[size - 3])
-                    , byteArrayOf(readDataList[size - 2], readDataList[size - 1])
+                    , mutableListOf()
+                    , mutableListOf()
+                    , mutableListOf()
+                    , mutableListOf()
+                    , mutableListOf()
+                    , mutableListOf()
+                    , mutableListOf()
+                    , mutableListOf()
+                    , mutableListOf(readDataList[size - 4], readDataList[size - 3])
+                    , mutableListOf(readDataList[size - 2], readDataList[size - 1])
             )
         }
     }

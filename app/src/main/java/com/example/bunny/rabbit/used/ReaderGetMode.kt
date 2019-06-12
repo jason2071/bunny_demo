@@ -7,7 +7,8 @@ import com.example.bunny.rabbit.base.RabbitObject.readModel
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.base.RabbitObject.writeDataList
 import com.example.bunny.rabbit.base.RabbitObject.writeModel
-import com.example.bunny.rabbit.model.BaseResponse
+import com.example.bunny.rabbit.model.ModeResponse
+import com.example.bunny.rabbit.model.ReaderResponse
 
 class ReaderGetMode : BaseReader() {
 
@@ -23,8 +24,8 @@ class ReaderGetMode : BaseReader() {
         writeModel.txSnPacket = setTraceNum(traceNumber)
         writeModel.txCommandId[0] = 0x64
         writeModel.txCommandId[1] = 0x00
-        writeModel.txPayloadType = byteArrayOf(payload[0], payload[1])
-        writeModel.txPayloadLen = byteArrayOf(payload[2], payload[3])
+        writeModel.txPayloadType = mutableListOf(payload[0], payload[1])
+        writeModel.txPayloadLen = mutableListOf(payload[2], payload[3])
 
         setTxPacketList()
 
@@ -34,7 +35,7 @@ class ReaderGetMode : BaseReader() {
 
         // check error code
         if (!nullComp(writeDataList) && !retStatus) {
-            errorCode = littleEndian2Norm(readModel.rxResult)
+            errorCode = littleEndian2Norm(readModel.rxResult).toByteArray()
             retStatus = false
         }
 
@@ -50,22 +51,12 @@ class ReaderGetMode : BaseReader() {
     //////////////////////////////////// after using getMode ///////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    val response: GetModeResponse
-        get() {
-            val items = GetModeResponse()
-            items.status = retStatus
-            items.errorCode = errorCode
-            items.writeDataList = writeDataList
-            items.readDataList = readDataList
-            items.mode1 = mode1
-            return items
-        }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////// data class response //////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    class GetModeResponse : BaseResponse() {
-        var mode1: Byte = 0x00
-    }
+    val response: ReaderResponse
+        get() = ReaderResponse(
+                retStatus
+                , writeDataList
+                , readDataList
+                , errorCode.toMutableList()
+                , mode = ModeResponse(mode1)
+        )
 }

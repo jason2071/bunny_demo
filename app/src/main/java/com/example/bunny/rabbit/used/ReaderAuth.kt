@@ -7,7 +7,8 @@ import com.example.bunny.rabbit.base.RabbitObject.readModel
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.base.RabbitObject.writeDataList
 import com.example.bunny.rabbit.base.RabbitObject.writeModel
-import com.example.bunny.rabbit.model.BaseResponse
+import com.example.bunny.rabbit.model.AuthResponse
+import com.example.bunny.rabbit.model.ReaderResponse
 import com.example.bunny.util.DESUtils
 import kotlin.random.Random
 
@@ -33,14 +34,14 @@ class ReaderAuth : BaseReader() {
         writeModel.txSnPacket = setTraceNum(traceNumber)
         writeModel.txCommandId[0] = 0x41
         writeModel.txCommandId[1] = 0x00
-        writeModel.txPayloadType = byteArrayOf(payload[0], payload[1])
-        writeModel.txPayloadLen = byteArrayOf(payload[2], payload[3])
+        writeModel.txPayloadType = mutableListOf(payload[0], payload[1])
+        writeModel.txPayloadLen = mutableListOf(payload[2], payload[3])
 
         val list = mutableListOf<Byte>()
         list.addAll(arrayListOf(0, 1, 0, 0))
         list.addAll(encryptData.toMutableList())
         list.addAll(arrayListOf(0, 0, 0, 0, 0, 0, 0, 0))
-        writeModel.txPayload = list.toByteArray()
+        writeModel.txPayload = list
 
         setTxPacketList()
 
@@ -52,7 +53,7 @@ class ReaderAuth : BaseReader() {
         // check error code
         if (!nullComp(writeDataList) && !retStatus) {
 
-            errorCode = littleEndian2Norm(readModel.rxResult)
+            errorCode = littleEndian2Norm(readModel.rxResult).toByteArray()
             retStatus = false
         }
 
@@ -75,7 +76,7 @@ class ReaderAuth : BaseReader() {
                 decryptData = DESUtils.undes(keyData, readDataList.subList(12, 20).toByteArray())
                 val writeData = writeModel.txPayload.dropLast(8).toMutableList()
                 writeData.addAll(decryptData.toMutableList())
-                writeModel.txPayload = writeData.toByteArray()
+                writeModel.txPayload = writeData
                 writeModel.txSnPacket = setTraceNum(traceNumber)
                 readModel.rxPayload[1] == 0x03.toByte()
 
@@ -86,7 +87,7 @@ class ReaderAuth : BaseReader() {
                 // check error code
                 if (!nullComp(writeDataList) && !retStatus) {
 
-                    errorCode = littleEndian2Norm(readModel.rxResult)
+                    errorCode = littleEndian2Norm(readModel.rxResult).toByteArray()
                     retStatus = false
                 }
             }
@@ -98,26 +99,16 @@ class ReaderAuth : BaseReader() {
     ////////////////////////////////////// after using auth ////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    val response: AuthResponse
-        get() {
-            val items = AuthResponse()
-            items.status = retStatus
-            items.errorCode = errorCode
-            items.writeDataList = writeDataList
-            items.readDataList = readDataList
-            items.randomNumber = randomNumber
-            items.encryptData = encryptData
-            items.decryptData = decryptData
-            return items
-        }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////// data class response //////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    class AuthResponse : BaseResponse() {
-        var randomNumber = ByteArray(8)
-        var encryptData = ByteArray(8)
-        var decryptData = ByteArray(8)
-    }
+    val response: ReaderResponse
+        get() = ReaderResponse(
+                retStatus,
+                writeDataList,
+                readDataList,
+                errorCode.toMutableList(),
+                auth = AuthResponse(
+                        randomNumber.toMutableList(),
+                        encryptData.toMutableList(),
+                        decryptData.toMutableList()
+                )
+        )
 }

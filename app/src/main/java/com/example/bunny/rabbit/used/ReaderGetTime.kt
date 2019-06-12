@@ -7,7 +7,8 @@ import com.example.bunny.rabbit.base.RabbitObject.readModel
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.base.RabbitObject.writeDataList
 import com.example.bunny.rabbit.base.RabbitObject.writeModel
-import com.example.bunny.rabbit.model.BaseResponse
+import com.example.bunny.rabbit.model.ReaderResponse
+import com.example.bunny.rabbit.model.TimeResponse
 
 class ReaderGetTime : BaseReader() {
 
@@ -23,8 +24,8 @@ class ReaderGetTime : BaseReader() {
         writeModel.txSnPacket = setTraceNum(traceNumber)
         writeModel.txCommandId[0] = 0x66
         writeModel.txCommandId[1] = 0x00
-        writeModel.txPayloadType = byteArrayOf(payload[0], payload[1])
-        writeModel.txPayloadLen = byteArrayOf(payload[2], payload[3])
+        writeModel.txPayloadType = mutableListOf(payload[0], payload[1])
+        writeModel.txPayloadLen = mutableListOf(payload[2], payload[3])
 
         if (openSerialPort()) {
             retStatus = sendGetACK(ACK4)
@@ -32,13 +33,13 @@ class ReaderGetTime : BaseReader() {
 
         // check error code
         if (!nullComp(writeDataList) && !retStatus) {
-            errorCode = littleEndian2Norm(readModel.rxResult)
+            errorCode = littleEndian2Norm(readModel.rxResult).toByteArray()
             retStatus = false
         }
 
         // read the return from payload.
         if (retStatus) {
-            timeData = readModel.rxPayload
+            timeData = readModel.rxPayload.toByteArray()
         }
 
         closeSerialPort()
@@ -48,22 +49,12 @@ class ReaderGetTime : BaseReader() {
     //////////////////////////////////// after using getTime ///////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    val response: GetTimeResponse
-        get() {
-            val items = GetTimeResponse()
-            items.status = retStatus
-            items.errorCode = errorCode
-            items.writeDataList = writeDataList
-            items.readDataList = readDataList
-            items.readerTime = timeData
-            return items
-        }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////// data class response //////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    class GetTimeResponse : BaseResponse() {
-        var readerTime = ByteArray(7)
-    }
+    val response: ReaderResponse
+        get() = ReaderResponse(
+                retStatus
+                , writeDataList
+                , readDataList
+                , errorCode.toMutableList()
+                , time = TimeResponse(timeData.toMutableList())
+        )
 }

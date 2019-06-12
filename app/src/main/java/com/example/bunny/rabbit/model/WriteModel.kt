@@ -1,60 +1,65 @@
 package com.example.bunny.rabbit.model
 
+import android.os.Parcel
+import android.os.Parcelable
+
 data class WriteModel(
-        var txStart: ByteArray
-        , var txVersion: ByteArray
-        , var txSessionId: ByteArray
+        var txStart: MutableList<Byte>
+        , var txVersion: MutableList<Byte>
+        , var txSessionId: MutableList<Byte>
         , var txMessageType: Byte
-        , var txSnPacket: ByteArray
-        , var txSnCurrent: ByteArray
-        , var txSnTotal: ByteArray
-        , var txCommandId: ByteArray
-        , var txStatus: ByteArray
-        , var txPayloadType: ByteArray
-        , var txPayloadLen: ByteArray
-        , var txPayload: ByteArray
-        , var txCheckSum: ByteArray
-        , var txStop: ByteArray
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        , var txSnPacket: MutableList<Byte>
+        , var txSnCurrent: MutableList<Byte>
+        , var txSnTotal: MutableList<Byte>
+        , var txCommandId: MutableList<Byte>
+        , var txStatus: MutableList<Byte>
+        , var txPayloadType: MutableList<Byte>
+        , var txPayloadLen: MutableList<Byte>
+        , var txPayload: MutableList<Byte>
+        , var txCheckSum: MutableList<Byte>
+        , var txStop: MutableList<Byte>
+) : Parcelable {
+    constructor(source: Parcel) : this(
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            source.readByte(),
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) },
+            ArrayList<Byte>().apply { source.readList(this, Byte::class.java.classLoader) }
+    )
 
-        other as WriteModel
+    override fun describeContents() = 0
 
-        if (!txStart.contentEquals(other.txStart)) return false
-        if (!txVersion.contentEquals(other.txVersion)) return false
-        if (!txSessionId.contentEquals(other.txSessionId)) return false
-        if (txMessageType != other.txMessageType) return false
-        if (!txSnPacket.contentEquals(other.txSnPacket)) return false
-        if (!txSnCurrent.contentEquals(other.txSnCurrent)) return false
-        if (!txSnTotal.contentEquals(other.txSnTotal)) return false
-        if (!txCommandId.contentEquals(other.txCommandId)) return false
-        if (!txStatus.contentEquals(other.txStatus)) return false
-        if (!txPayloadType.contentEquals(other.txPayloadType)) return false
-        if (!txPayloadLen.contentEquals(other.txPayloadLen)) return false
-        if (!txPayload.contentEquals(other.txPayload)) return false
-        if (!txCheckSum.contentEquals(other.txCheckSum)) return false
-        if (!txStop.contentEquals(other.txStop)) return false
-
-        return true
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeList(txStart)
+        writeList(txVersion)
+        writeList(txSessionId)
+        writeByte(txMessageType)
+        writeList(txSnPacket)
+        writeList(txSnCurrent)
+        writeList(txSnTotal)
+        writeList(txCommandId)
+        writeList(txStatus)
+        writeList(txPayloadType)
+        writeList(txPayloadLen)
+        writeList(txPayload)
+        writeList(txCheckSum)
+        writeList(txStop)
     }
 
-    override fun hashCode(): Int {
-        var result = txStart.contentHashCode()
-        result = 31 * result + txVersion.contentHashCode()
-        result = 31 * result + txSessionId.contentHashCode()
-        result = 31 * result + txMessageType
-        result = 31 * result + txSnPacket.contentHashCode()
-        result = 31 * result + txSnCurrent.contentHashCode()
-        result = 31 * result + txSnTotal.contentHashCode()
-        result = 31 * result + txCommandId.contentHashCode()
-        result = 31 * result + txStatus.contentHashCode()
-        result = 31 * result + txPayloadType.contentHashCode()
-        result = 31 * result + txPayloadLen.contentHashCode()
-        result = 31 * result + txPayload.contentHashCode()
-        result = 31 * result + txCheckSum.contentHashCode()
-        result = 31 * result + txStop.contentHashCode()
-        return result
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<WriteModel> = object : Parcelable.Creator<WriteModel> {
+            override fun createFromParcel(source: Parcel): WriteModel = WriteModel(source)
+            override fun newArray(size: Int): Array<WriteModel?> = arrayOfNulls(size)
+        }
     }
 }

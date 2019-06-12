@@ -7,7 +7,8 @@ import com.example.bunny.rabbit.base.RabbitObject.readModel
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.base.RabbitObject.writeDataList
 import com.example.bunny.rabbit.base.RabbitObject.writeModel
-import com.example.bunny.rabbit.model.BaseResponse
+import com.example.bunny.rabbit.model.ReaderResponse
+import com.example.bunny.rabbit.model.TimeResponse
 
 class ReaderSyncTime : BaseReader() {
 
@@ -24,9 +25,9 @@ class ReaderSyncTime : BaseReader() {
         writeModel.txSnPacket = setTraceNum(traceNumber)
         writeModel.txCommandId[0] = 0x67
         writeModel.txCommandId[1] = 0x00
-        writeModel.txPayloadType = byteArrayOf(payload[0], payload[1])
-        writeModel.txPayloadLen = byteArrayOf(payload[2], payload[3])
-        writeModel.txPayload = timeData
+        writeModel.txPayloadType = mutableListOf(payload[0], payload[1])
+        writeModel.txPayloadLen = mutableListOf(payload[2], payload[3])
+        writeModel.txPayload = timeData.toMutableList()
 
         if (openSerialPort()) {
             retStatus = sendGetACK(ACK4)
@@ -34,7 +35,7 @@ class ReaderSyncTime : BaseReader() {
 
         // check error code
         if (!nullComp(writeDataList) && !retStatus) {
-            errorCode = littleEndian2Norm(readModel.rxResult)
+            errorCode = littleEndian2Norm(readModel.rxResult).toByteArray()
             retStatus = false
         }
 
@@ -45,22 +46,12 @@ class ReaderSyncTime : BaseReader() {
     /////////////////////////////////// after using syncTime ///////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    val response: SyncTimeResponse
-        get() {
-            val items = SyncTimeResponse()
-            items.status = retStatus
-            items.errorCode = errorCode
-            items.writeDataList = writeDataList
-            items.readDataList = readDataList
-            items.readerTime = timeData
-            return items
-        }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////// data class response //////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    class SyncTimeResponse : BaseResponse() {
-        var readerTime = ByteArray(7)
-    }
+    val response: ReaderResponse
+        get() = ReaderResponse(
+                retStatus
+                , writeDataList
+                , readDataList
+                , errorCode.toMutableList()
+                , time = TimeResponse(timeData.toMutableList())
+        )
 }
