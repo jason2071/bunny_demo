@@ -37,8 +37,8 @@ class ReaderCancel : BaseReader() {
     ////////////////////////////////////// after using cancel //////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /*val response: CancelResponse
-        get() = CancelResponse(retStatus, writeDataList, readDataList)*/
+    /*val response: MainReaderResponse
+        get() = MainReaderResponse(retStatus, writeDataList, readDataList)*/
 
     val response: ReaderResponse
         get() = ReaderResponse(retStatus , writeDataList , readDataList)

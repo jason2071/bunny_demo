@@ -7,11 +7,11 @@ import com.example.bunny.rabbit.model.WriteModel
 object RabbitObject {
 
     // for send data
-    lateinit var writeModel: WriteModel
+    var writeModel = WriteModel()
     var writeDataList = mutableListOf<Byte>()
 
     // for receive data
-    lateinit var readModel: ReadModel
+    var readModel = ReadModel()
     var readDataList = mutableListOf<Byte>()
 
     // save sequence number

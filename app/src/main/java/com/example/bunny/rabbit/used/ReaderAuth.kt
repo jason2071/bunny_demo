@@ -76,6 +76,7 @@ class ReaderAuth : BaseReader() {
                 decryptData = DESUtils.undes(keyData, readDataList.subList(12, 20).toByteArray())
                 val writeData = writeModel.txPayload.dropLast(8).toMutableList()
                 writeData.addAll(decryptData.toMutableList())
+
                 writeModel.txPayload = writeData
                 writeModel.txSnPacket = setTraceNum(traceNumber)
                 readModel.rxPayload[1] == 0x03.toByte()

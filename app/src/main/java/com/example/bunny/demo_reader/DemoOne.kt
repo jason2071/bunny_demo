@@ -1,33 +1,31 @@
 package com.example.bunny.demo_reader
 
-import com.example.bunny.rabbit.model.WriteModel
+import com.example.bunny.util.LogUtil
 
 
 class DemoOne : MainInterface {
 
-    private var mainInterface: MainInterface = this
-    private lateinit var mainDemo: MainDemo
+    private val mainInterface: MainInterface = this
+    private val mainDemo = MainDemo(mainInterface)
 
-    private val payload = byteArrayOf(0x01, 0x00, 0x04, 0x00)
+    private var firstLoad = false
 
-    fun cancel() {
-        mainDemo = MainDemo(mainInterface)
+    override fun onLoad() {
+        mainDemo.setData(1)
+    }
 
+    override fun onRes(message: String) {
 
-        val start: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val version: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val sessionId: MutableList<Byte> = mutableListOf(0x00, 0x00, 0x00, 0x00)
-        val messageType: Byte = 0x00
-        val snPacket: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val snCurrent: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val snTotal: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val commandId: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val statusOrResult: MutableList<Byte> = mutableListOf(0x00, 0x00, 0x00, 0x00)
-        val payloadType: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val payloadLen: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val payload: MutableList<Byte> = mutableListOf()
-        val checksum: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        val stop: MutableList<Byte> = mutableListOf(0x00, 0x00)
-        
+        if (!firstLoad) {
+
+            firstLoad = true
+
+            LogUtil.log("onRes")
+            mainDemo.setData(2)
+        } else {
+            LogUtil.log("fin")
+        }
+
+        LogUtil.log(message)
     }
 }
