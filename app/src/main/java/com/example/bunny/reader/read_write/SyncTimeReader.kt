@@ -1,6 +1,7 @@
 package com.example.bunny.reader.read_write
 
 import com.example.bunny.rabbit.base.RabbitObject.ACK4
+import com.example.bunny.rabbit.base.RabbitObject.readModel
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.model.WriteModel
 import com.example.bunny.reader.interfaces.IMainReader
@@ -51,7 +52,9 @@ class SyncTimeReader(private val iReaderResponse: IReaderResponse) : IMainReader
             readerManager.closeSerialPort()
         }
 
-        errorCode = readerManager.nullCompare(res.status)
+        if (!readerManager.nullCompare() && !res.status) {
+            errorCode = readModel.rxResult.reversed().toMutableList()
+        }
         iReaderResponse.onResponseSuccess(res.copy(errorCode = errorCode, result = TimeReaderResponse(readerTime7)))
     }
 }

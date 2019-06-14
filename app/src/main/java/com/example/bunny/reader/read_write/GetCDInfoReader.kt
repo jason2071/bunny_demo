@@ -1,6 +1,8 @@
 package com.example.bunny.reader.read_write
 
+import com.example.bunny.rabbit.base.RabbitObject
 import com.example.bunny.rabbit.base.RabbitObject.ACK5
+import com.example.bunny.rabbit.base.RabbitObject.readModel
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.model.WriteModel
 import com.example.bunny.reader.interfaces.IMainReader
@@ -44,7 +46,9 @@ class GetCDInfoReader(private val iReaderResponse: IReaderResponse) : IMainReade
             readerManager.closeSerialPort()
         }
 
-        errorCode = readerManager.nullCompare(res.status)
+        if (!readerManager.nullCompare() && !res.status) {
+            errorCode = readModel.rxResult.reversed().toMutableList()
+        }
         iReaderResponse.onResponseSuccess(res.copy(errorCode = errorCode))
     }
 }

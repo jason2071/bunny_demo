@@ -71,7 +71,11 @@ class AuthReader(private val iReaderResponse: IReaderResponse) : IMainReader {
             readerManager.closeSerialPort()
         }
 
-        errorCode = readerManager.nullCompare(res.status)
+        if (!readerManager.nullCompare() && !res.status) {
+            errorCode = readModel.rxResult.reversed().toMutableList()
+            res.status = false
+        }
+
 
         if (!isFirstLoad) {
             isFirstLoad = true

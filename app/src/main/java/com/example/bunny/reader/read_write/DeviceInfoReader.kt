@@ -53,7 +53,10 @@ class DeviceInfoReader(private val iReaderResponse: IReaderResponse) : IMainRead
             readerManager.closeSerialPort()
         }
 
-        errorCode = readerManager.nullCompare(res.status)
+        if (!readerManager.nullCompare() && !res.status) {
+            errorCode = readModel.rxResult.reversed().toMutableList()
+            res.status = false
+        }
 
         if (res.status) {
             deviceID4 = readModel.rxPayload.subList(0, 4)

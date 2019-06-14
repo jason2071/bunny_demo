@@ -1,6 +1,7 @@
 package com.example.bunny.reader.read_write
 
 import com.example.bunny.rabbit.base.RabbitObject.ACK5
+import com.example.bunny.rabbit.base.RabbitObject.readModel
 import com.example.bunny.rabbit.base.RabbitObject.traceNumber
 import com.example.bunny.rabbit.model.WriteModel
 import com.example.bunny.reader.interfaces.IMainReader
@@ -44,14 +45,14 @@ class InitializeReader(private val iReaderResponse: IReaderResponse) : IMainRead
         )
         readerManager.setTraceNumber(traceNumber)
 
-        val data = mutableListOf<Byte>()
-        data.addAll(arrayListOf(0x01, 0, 0x01, 0))
-        data.addAll(merchID8.reversed())
-        data.addAll(locateID4.reversed())
-        data.addAll(termID4.reversed())
-        data.addAll(serviceID4.reversed())
-        data.add(0x01)
-        readerManager.setPayload(data)
+        val items = mutableListOf<Byte>(0x01, 0, 0x01, 0)
+        items += merchID8.reversed()
+        items += locateID4.reversed()
+        items += termID4.reversed()
+        items += serviceID4.reversed()
+        items += listOf<Byte>(0x01)
+
+        readerManager.setPayload(items)
         readerManager.setTxPacketList()
 
         if (readerManager.openSerialPort()) {
@@ -63,7 +64,9 @@ class InitializeReader(private val iReaderResponse: IReaderResponse) : IMainRead
         if (readerManager.openSerialPort()) {
             readerManager.closeSerialPort()
         }
-        errorCode = readerManager.nullCompare(res.status)
+        if (!readerManager.nullCompare() && !res.status) {
+            errorCode = readModel.rxResult.reversed().toMutableList()
+        }
         iReaderResponse.onResponseSuccess(res.copy(errorCode = errorCode))
     }
 }

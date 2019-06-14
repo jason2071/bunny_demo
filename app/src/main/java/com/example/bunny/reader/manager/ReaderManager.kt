@@ -4,6 +4,7 @@ import android.content.Context
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.RemoteException
+import android.os.SystemClock
 import com.example.bunny.api.SerialPort
 import com.example.bunny.manager.Contextor
 import com.example.bunny.reader.interfaces.IMainReader
@@ -40,6 +41,10 @@ class ReaderManager(private val iMainReader: IMainReader) {
     private var timeoutRX = 18000 / 100
     private var timeoutRecvACK = 1500 / 100
 
+    // External variables / declarations
+    private var lBSSInputCtrl = 0
+    private var lBSSInputRet = 0
+
     // flow result
     private var flowResult: Byte = 0
 
@@ -60,21 +65,22 @@ class ReaderManager(private val iMainReader: IMainReader) {
     }
 
     fun setTxPacketList() {
-        writeDataList.clear()
-        writeDataList.addAll(writeModel.txStart)
-        writeDataList.addAll(writeModel.txVersion)
-        writeDataList.addAll(writeModel.txSessionId)
-        writeDataList.add(writeModel.txMessageType)
-        writeDataList.addAll(writeModel.txSnPacket)
-        writeDataList.addAll(writeModel.txSnCurrent)
-        writeDataList.addAll(writeModel.txSnTotal)
-        writeDataList.addAll(writeModel.txCommandId)
-        writeDataList.addAll(writeModel.txStatus)
-        writeDataList.addAll(writeModel.txPayloadType)
-        writeDataList.addAll(writeModel.txPayloadLen)
-        writeDataList.addAll(writeModel.txPayload)
-        writeDataList.addAll(writeModel.txCheckSum)
-        writeDataList.addAll(writeModel.txStop)
+        val items = mutableListOf<Byte>()
+        items += writeModel.txStart
+        items += writeModel.txVersion
+        items += writeModel.txSessionId
+        items += writeModel.txMessageType
+        items += writeModel.txSnPacket
+        items += writeModel.txSnCurrent
+        items += writeModel.txSnTotal
+        items += writeModel.txCommandId
+        items += writeModel.txStatus
+        items += writeModel.txPayloadType
+        items += writeModel.txPayloadLen
+        items += writeModel.txPayload
+        items += writeModel.txCheckSum
+        items += writeModel.txStop
+        writeDataList = items
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,19 +161,74 @@ class ReaderManager(private val iMainReader: IMainReader) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////// RECEIVE SEND ACK ////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    fun receiveSendACK(sendACK: Byte): Boolean {
+        var count = 0
+        var retStatus: Boolean
+        var retVal = false
+        loop@ do {
+            retStatus = unPackRxMsgRec(true)
+
+            if (!retStatus) {
+                break@loop
+            } else {
+
+                if (flowResult == NAK || flowResult == CNX) {
+
+                    SystemClock.sleep(100)
+                    acknowSend(sendACK)
+                    count++
+
+                } else {
+                    acknowSend(sendACK)
+                    retVal = true
+                    break@loop
+                }
+            }
+
+        } while (count < 3)
+
+        lBSSInputCtrl = 0
+        return retVal
+    }
+
+    private fun acknowSend(type: Byte): Boolean {
+        writeModel = WriteModel(
+                txVersion = mutableListOf(0x01, 0)
+                , txSessionId = mutableListOf(0, 0, 0, 0)
+                , txMessageType = type
+                , txSnPacket = readModel.rxSnPacket
+        )
+
+        setTxPacketList()
+
+        if (writeDataList.isNotEmpty()) {
+            val data = writeDataList.drop(2).dropLast(4)
+            val crc16 = Crc16Utils.calculate_crc(data.toByteArray())
+            val size = writeDataList.size
+
+            writeDataList[size - 4] = (crc16 and 0x000000ff).toByte()
+            writeDataList[size - 3] = (crc16 and 0x0000ff00).ushr(8).toByte()
+
+            if (stuff10Add()) {
+                return writeData() != -1
+            }
+        }
+        return false
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////// COMPARE DATA ///////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * value = {0,0,0,0} = null = success
      */
-    fun nullCompare(status: Boolean): MutableList<Byte> {
+    fun nullCompare(): Boolean {
         val value = readModel.rxResult.find { it > 0 }
-        return if (!status && value != null) {
-            readModel.rxResult.reversed().toMutableList()
-        } else {
-            mutableListOf(0, 0, 0, 0)
-        }
+        return value == null
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
